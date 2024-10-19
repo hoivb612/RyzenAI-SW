@@ -10762,9 +10762,22 @@ static void ggml_compute_forward_mul_mat(
 #elif defined(GGML_USE_RYZENAI)
     if (ggml_ryzenai_can_mul_mat(src0, src1, dst)) {
         if (params->ith == 0 && params->type == GGML_TASK_TYPE_COMPUTE) {
+            int64_t t1 = ggml_time_us();
+            printf("[RyzenAI mulmat]: [%s](%s) * [%s](%s) => [%s](%s)\n"
+                   "   -- ne00(%I64d)-ne01(%I64d)-ne11(%I64d)-ne12(%I64d)-ne13(%I64d) : <%d>us\n",
+                    src0->name, ggml_type_name(src0->type), 
+                    src1->name, ggml_type_name(src1->type), 
+                    dst->name, ggml_type_name(dst->type),
+                    ne00, ne01, ne11, ne12, ne13,
+                    (int)(t1 - t0));
             ggml_ryzenai_mul_mat(src0, src1, dst, params->wdata, params->wsize);
         }
         return;
+    } else {
+        printf("[RyzenAI mulmat no no]: [%s](%s) * [%s](%s) => [%s](%s)\n",
+                src0->name, ggml_type_name(src0->type), 
+                src1->name, ggml_type_name(src1->type), 
+                dst->name, ggml_type_name(dst->type));
     }
 #endif
 
